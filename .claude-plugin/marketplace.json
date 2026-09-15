@@ -1,0 +1,14 @@
+{
+  "name": "dcc-command-center",
+  "owner": {
+    "name": "Ross Reiffman"
+  },
+  "description": "Ross Reiffman's Todoist Command Center plugin for Claude Code.",
+  "plugins": [
+    {
+      "name": "command-center",
+      "source": "./",
+      "description": "Run the canonical Todoist Command Center: reconcile the ledger, pick the next executable move, clean the inbox, and draft outstanding replies."
+    }
+  ]
+}

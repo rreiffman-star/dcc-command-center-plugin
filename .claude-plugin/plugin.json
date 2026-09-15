@@ -1,0 +1,18 @@
+{
+  "name": "command-center",
+  "displayName": "Command Center",
+  "version": "0.10.1",
+  "description": "Operate Ross Reiffman's canonical Todoist Command Center: reconcile open loops against the Command Center project, recommend the next executable move, clean the inbox, and draft outstanding replies. Rules are fetched from GitHub at a verified commit before any write.",
+  "author": {
+    "name": "Ross Reiffman"
+  },
+  "homepage": "https://github.com/rreiffman-star/dcc-command-center",
+  "repository": "https://github.com/rreiffman-star/dcc-command-center",
+  "keywords": [
+    "todoist",
+    "productivity",
+    "command-center",
+    "inbox",
+    "gmail"
+  ]
+}

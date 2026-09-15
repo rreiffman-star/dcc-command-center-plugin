@@ -1,0 +1,8 @@
+interface:
+  display_name: "Command Center"
+  short_description: "Run the canonical Todoist Command Center"
+  default_prompt: "Use $command-center to reconcile my canonical Todoist ledger and give me the best action I can personally execute now."
+  icon_small: "assets/icon.svg"
+  icon_large: "assets/icon.svg"
+policy:
+  allow_implicit_invocation: true
