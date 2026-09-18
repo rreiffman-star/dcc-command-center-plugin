@@ -5,7 +5,7 @@ description: Review Ross's inbox under the canonical Todoist-backed Command Cent
 
 # Clean Inbox
 
-Integration contract: 0.10.1.
+Integration contract: 0.11.0.
 
 Foreground inbox reconciliation can overlap with the registered cloud job. Compare fresh task snapshots before every write and preserve SYSTEM BACKGROUND and other fields this run does not own. Reconcile observed conflicts from current evidence, and inspect ambiguous writes before retrying; there is no atomic writer lock. This skill retains its own mailbox authorization boundaries; the background job has no mailbox-disposition authority.
 

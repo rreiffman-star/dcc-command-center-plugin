@@ -9,7 +9,7 @@ Execute the email-response lane of Ross's Daily Command Center. DCC decides and 
 
 ## Authority boundary
 
-Integration contract: 0.10.1.
+Integration contract: 0.11.0.
 
 The registered cloud job may reconcile the same task while a reply is being prepared. Read the task again after the actual draft/send, compare with the reasoning snapshot, and reconcile newer facts before writing. Preserve SYSTEM BACKGROUND and unrelated source fields. Investigate ambiguous writes before retrying and report external-action success separately from persistence failure; there is no atomic writer lock.
 

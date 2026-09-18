@@ -13,7 +13,7 @@ description: Maintain Ross's canonical Todoist Command Center, reconcile convers
 - Heuristics: `rules/heuristics.md`, required first nonblank line `# Command Center Heuristics`
 - Canonical Todoist project: `Command Center`
 
-Bootstrap version: 0.10.1.
+Bootstrap version: 0.11.0.
 
 Before operational DCC work resolve main through the GitHub app, then fetch `runtime.json`, constitution, and heuristics at that exact commit. Validate repository/project identity, required headers, file SHA-256 digests against the manifest, and bootstrap-version compatibility. For broad acquisition also fetch and validate sources.md at the same SHA. Use the GitHub app to read `.github/workflows/rules-check.yml` runs for this exact head SHA; require a completed successful push run on main before operational writes. Do not accept a similarly named check, a different commit, or pending/failed results. This guards live use while main's CI is pending; semantic review is still separate. A systems implementation may prepare and publish changes against the prior verified release, but must verify CI before installing/promoting them for normal operation.
 
@@ -23,7 +23,11 @@ Include the effective rule SHA and degraded status, if any, in the compact recei
 
 Higher-priority instructions and Ross's explicit current-session authorization remain controlling. Treat systems-audit requests as permission to examine assumptions and observed behavior, not as an instruction to obey the design being critiqued. Mutate only when the requested scope authorizes it.
 
-Integration contract: 0.10.1. Related executors use this bootstrap and the same Todoist ledger; they do not define their own persistence authority.
+Integration contract: 0.11.0. Related executors use this bootstrap and the same Todoist ledger; they do not define their own persistence authority.
+
+## Conductor and workers
+
+The session Ross is talking to is the conductor: it reads the ledger, gives him the brief, dispatches work, and is the only foreground writer. When a task is handed to another session or subagent to execute (draft a reply, build a page, research a question), that worker reads the one record it was given and never writes Todoist. It finishes with a short receipt (what was produced, where it is, what remains) and the conductor reconciles the record through the targeted fast lane. The ranked QUEUE holds at most 15 active IDs; the daily brief format in the constitution is the user-facing output for DCC.
 
 ## Finish actions with current state
 
@@ -31,11 +35,11 @@ The authorized cloud reconciliation job follows the Cloud background reconciliat
 
 For next-action decisions and history questions, fetch and validate sources.md at the same rule SHA even when no broad Refresh is requested. Next-action freshness checks are automatic, bounded foreground work, and remain necessary when a background job exists. History questions use the Todoist entity directory, including completed task IDs and paginated comments, and are read-only unless updates are requested. Keep current state in descriptions and material history in comments; follow the constitution's append, deduplication, correction, and failure-recovery rules. The registered cloud job adds periodic Gmail/calendar reconciliation, not another ledger or universal Messages access.
 
-After a successful authorized send, upload, payment, submission, delegation, or material draft preparation, check whether the action advances a known DCC obligation even if Ross did not mention DCC. For one certain existing match, use the constitution's targeted fast lane: read the task, reconcile the completed step and remaining obligations, and read it back before reporting completion. A saved draft only advances preparation; never mark the reply sent or the obligation waiting because a draft exists. Do not inherit the completed step's priority for a different next action. Uncertain matches use ordinary reconciliation. Report a successful external action and a failed ledger update separately.
+In the conductor session only, after a successful authorized send, upload, payment, submission, delegation, or material draft preparation, check whether the action advances a known DCC obligation even if Ross did not mention DCC. A worker that completed such an action reports it in its receipt and writes nothing; the conductor then applies this paragraph. For one certain existing match, use the constitution's targeted fast lane: read the task, reconcile the completed step and remaining obligations, and read it back before reporting completion. A saved draft only advances preparation; never mark the reply sent or the obligation waiting because a draft exists. Do not inherit the completed step's priority for a different next action. Uncertain matches use ordinary reconciliation. Report a successful external action and a failed ledger update separately.
 
 ## Rundowns and decision continuity
 
-Apply the constitution's intake comparison and transition reconsideration rules. Link all independently closable outcomes in planning context, give selected large work a useful first finish, and distinguish prepared material from delivery. For intake, DCC selection, or material plan changes, use the bounded decision-history procedure in sources.md. Fetch and digest-verify scripts/decisions.py at the same release SHA before validating/paging comments. Use schema 2 and the source procedure's intake mapping and check-placement operation, including renewed older tasks; fetch its command_center.py dependency at the same verified SHA. Preserve the cohort and observe/explain every selected or watched competitor. Record exact prepared recommendations separately from watch items and verified response delivery. Keep consequential displacement explanations short; never impose morning-item quotas.
+Apply the constitution's intake comparison and transition reconsideration rules. Link all independently closable outcomes in planning context, give selected large work a useful first finish, and distinguish prepared material from delivery. For intake, the first DCC or What's next of each day, or a material change to selected work, use the bounded decision-history procedure in sources.md; a repeat with the same selection records nothing. Fetch and digest-verify scripts/decisions.py at the same release SHA before validating/paging comments. Use schema 2 and the source procedure's intake mapping and check-placement operation, including renewed older tasks; fetch its command_center.py dependency at the same verified SHA. Preserve the cohort and observe/explain every selected or watched competitor. Record exact prepared recommendations separately from watch items and verified response delivery. Keep consequential displacement explanations short; never impose morning-item quotas.
 
 ## Permanent heuristic additions
 
