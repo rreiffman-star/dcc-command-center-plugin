@@ -5,7 +5,9 @@ description: Review Ross's inbox under the canonical Todoist-backed Command Cent
 
 # Clean Inbox
 
-Integration contract: 0.12.0.
+Integration contract: 0.14.0.
+
+Frozen-work-queue boundary: invoking this skill authorizes its requested targeted mail work, not a Refresh DCC. Preserve SYSTEM QUEUE and its order. Reconcile affected tasks and record advanced queued actions in WORK BLOCK.retired_ids; new or successor work waits for the next explicit Refresh to be ranked. Do not perform unrelated evidence gathering or automatically refresh the work list.
 
 Foreground inbox reconciliation can overlap with the registered cloud job. Compare fresh task snapshots before every write and preserve SYSTEM BACKGROUND and other fields this run does not own. Reconcile observed conflicts from current evidence, and inspect ambiguous writes before retrying; there is no atomic writer lock. This skill retains its own mailbox authorization boundaries; the background job has no mailbox-disposition authority.
 

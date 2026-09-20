@@ -15,7 +15,7 @@ import json
 from pathlib import Path
 import re
 
-VERSION = '0.12.0'
+VERSION = '0.14.0'
 REPOSITORY = 'rreiffman-star/dcc-command-center'
 HEADERS = {'rules/constitution.md': '# Command Center Constitution',
            'rules/heuristics.md': '# Command Center Heuristics',

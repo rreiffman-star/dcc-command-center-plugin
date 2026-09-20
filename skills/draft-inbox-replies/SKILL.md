@@ -9,7 +9,9 @@ Execute the email-response lane of Ross's Daily Command Center. DCC decides and 
 
 ## Authority boundary
 
-Integration contract: 0.12.0.
+Integration contract: 0.14.0.
+
+Frozen-work-queue boundary: invoking this skill authorizes its requested targeted mail work, not a Refresh DCC. Preserve SYSTEM QUEUE and its order. Reconcile affected tasks and record advanced queued actions in WORK BLOCK.retired_ids; new or successor work waits for the next explicit Refresh to be ranked. Do not perform unrelated evidence gathering or automatically refresh the work list.
 
 The registered cloud job may reconcile the same task while a reply is being prepared. Read the task again after the actual draft/send, compare with the reasoning snapshot, and reconcile newer facts before writing. Preserve SYSTEM BACKGROUND and unrelated source fields. Investigate ambiguous writes before retrying and report external-action success separately from persistence failure; there is no atomic writer lock.
 

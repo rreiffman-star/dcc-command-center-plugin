@@ -1,7 +1,7 @@
 {
   "name": "command-center",
   "displayName": "Command Center",
-  "version": "0.12.0",
+  "version": "0.14.0",
   "description": "Operate Ross Reiffman's canonical Todoist Command Center: reconcile open loops against the Command Center project, recommend the next executable move, clean the inbox, and draft outstanding replies. Rules are fetched from GitHub at a verified commit before any write.",
   "author": {
     "name": "Ross Reiffman"

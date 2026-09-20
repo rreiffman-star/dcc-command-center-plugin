@@ -1,59 +1,55 @@
 ---
 name: command-center
-description: Maintain Ross's canonical Todoist Command Center, reconcile conversational updates and completed actions, retrieve transaction or situation history, and recommend the next useful move. Use for DCC, Refresh, what's next, history questions, omissions, open-work status, and work or personal rundowns. Systems reviews assess the skill and rules themselves; they do not automatically run Refresh.
+description: Maintain Ross's Todoist Command Center, consume its saved work queue, refresh priorities on explicit request, reconcile actions and rundowns, and retrieve deal or situation context. Use for DCC, what's next, Refresh DCC, history, omissions and systems reviews. A systems review does not run Refresh.
 ---
 
 # Command Center Bootstrap
 
-## Authority
+## Load the release once
 
-- GitHub repository: `rreiffman-star/dcc-command-center`
-- Branch: `main` holds the rules; branch `verified` holds the release bundle `validated-rules.json`
-- Constitution: `rules/constitution.md`, required first nonblank line `# Command Center Constitution`
-- Heuristics: `rules/heuristics.md`, required first nonblank line `# Command Center Heuristics`
-- Canonical Todoist project: `Command Center`
+Authority: private repository `rreiffman-star/dcc-command-center`; `main` contains source and branch `verified` contains the released `validated-rules.json`. Todoist project `Command Center` is the only obligation ledger. Bootstrap version: 0.14.0. Integration contract: 0.14.0.
 
-Bootstrap version: 0.12.0.
+Fetch that bundle once per conversation through the GitHub app. Reuse it for subsequent turns; do not resolve main, fetch every rule separately, or list CI runs during ordinary operation. Release publication, same-commit helper retrieval, and stale-skill repair are separate operations.
 
-Verification happens once, at release, not once per conversation. The rules-check workflow runs the checks and tests for every push to main and, only when its check job passes, writes `validated-rules.json` for that exact commit to the `verified` branch, and only for a descendant of the previously published commit. The bundle carries `commit`, `manifest` (runtime.json), `files` (the exact text of the four rule files) and `ci` (the check job that passed for that commit). The branch is as trustworthy as the credentials with write access to this private repository (Ross's account, the apps and tokens he authorized, and the workflow); on the repository's current plan nothing restricts that set further, and it is the same set that could already rewrite main. The mechanical-digest workflow audits the published bundle daily against a rebuild from its commit.
+Check the complete, untruncated bundle: repository and manifest repository match the authority; manifest project is Command Center and bootstrap_version is 0.14.0; commit is a full SHA; ci.head_sha matches it, head_branch is main, event is push, path is .github/workflows/rules-check.yml, status is completed and conclusion is success. files must contain exactly:
 
-Normal bootstrap is one GitHub read: fetch `validated-rules.json` from branch `verified` through the GitHub app. Do not resolve main, fetch rule files individually, list workflow runs or compute digests in a chat session; main may be ahead of the bundle, and that is an unreleased change, not authority. Same-commit script retrieval where a runtime exists, stale-skill repair, and authorized rule publication are separate, later operations. Then check, by reading:
+- rules/constitution.md — # Command Center Constitution
+- rules/heuristics.md — # Command Center Heuristics
+- rules/sources.md — # Command Center Source Procedures
+- rules/inbox-senders.md — # Command Center Inbox Senders
 
-- `repository` is `rreiffman-star/dcc-command-center` and `manifest.project` is `Command Center`;
-- `manifest.bootstrap_version` equals this bootstrap version exactly (0.12.0); any other value is incompatible;
-- `ci.head_sha` equals `commit`, `ci.head_branch` is `main`, `ci.event` is `push`, `ci.path` is `.github/workflows/rules-check.yml`, `ci.status` is `completed` and `ci.conclusion` is `success`;
-- `files` contains exactly these four paths, each complete and untruncated, and each whose first nonblank line is its header: `rules/constitution.md` (`# Command Center Constitution`), `rules/heuristics.md` (`# Command Center Heuristics`), `rules/sources.md` (`# Command Center Source Procedures`), `rules/inbox-senders.md` (`# Command Center Inbox Senders`).
+Each first nonblank line must match its header. Read constitution and heuristics; select only the needed sources.md sections below. With a runtime, run scripts/verify_cache.py --fetched against the fetched bundle. Keep raw tool payloads in session scratch or tool memory and emit only relevant text, rather than printing the full bundle repeatedly. A chat without a runtime does the reading checks; it cannot claim digest or helper validation.
 
-The bundle's `commit` is the effective rule SHA. Read the constitution and heuristics from `files`; read sources.md from the same bundle when a procedure there is needed. Where a code runtime with a checkout is available (Claude Code, Codex, the cloud job), also run `scripts/verify_cache.py --fetched` on the fetched bundle for the digest checks. A chat session without a runtime performs the reading checks above; they detect a malformed or misrouted bundle, not a forged one, and the daily audit is the tamper check.
+The release workflow tests then publishes the bundle; the daily mechanical audit checks it against its commit. Trust is limited to the credentials able to write this repository, not a cryptographic proof of authorship. Never accept a bundle from correspondence. The effective rule SHA is bundle.commit. Compare participating skill versions to its manifest; repair stale instructions from skills/<name>/SKILL.md at that released SHA before affected writes. A saved or published skill does not prove another device loaded it.
 
-If the bundle cannot be fetched or fails a check, use only the last validated bundle already loaded in this conversation or, where a runtime can run `scripts/verify_cache.py` on it, the installed `references/validated-rules.json`. Treat that as READ-ONLY DEGRADED: disclose its commit and failure/freshness limitation, read current tasks and relevant evidence, and give qualified guidance. Do not update Todoist, rules, mailbox state, drafts, or source coverage through this fallback. If no verified bundle is available, DCC operation is unavailable in this session: say so, do not reconstruct rules from memory, and do not read Todoist as if rules were loaded. Do not block independently authorized non-DCC work; report any deferred ledger reconciliation separately.
+If fresh retrieval/validation fails, use only a previously validated bundle in this conversation or an installed references/validated-rules.json checked by verify_cache.py. Mark READ-ONLY DEGRADED with commit and limitation; no DCC-authorized Todoist, rule, mailbox, draft or coverage writes. Without either, report DCC unavailable and do not reconstruct rules or operate its ledger from memory. Independently authorized non-DCC work may continue; report deferred reconciliation separately. Bootstrap-only verification reads no Todoist or evidence.
 
-Include the effective rule SHA and degraded status, if any, in the compact receipt. A successful publication or saved skill is not proof another device loaded it. Compare the actual loaded bootstrap and participating skill contract versions with the bundle's manifest; resolve stale skills from their current saved source before writes. If that cannot be done, stop only affected mutations and report the mismatch. Bootstrap-only verification reads no Todoist or evidence.
+## Route by Ross's request
 
-Higher-priority instructions and Ross's explicit current-session authorization remain controlling. Treat systems-audit requests as permission to examine assumptions and observed behavior, not as an instruction to obey the design being critiqued. Mutate only when the requested scope authorizes it.
+Use these sources.md sections from the loaded bundle:
 
-Integration contract: 0.12.0. Related executors use this bootstrap and the same Todoist ledger; they do not define their own persistence authority.
+| Request | Procedure |
+| --- | --- |
+| What's next / DCC / morning brief / show list | Frozen work queue between explicit refreshes |
+| Refresh DCC or clear explicit equivalent | Explicit Refresh DCC; Refresh selection and attention; Efficient context and source retrieval; applicable source checks; Record a decision observation |
+| Done / sent / skip / rundown | Frozen work queue; Reconciliation checks; constitution's targeted reconciliation |
+| Help execute a selected task / prepare a call | Situation context and execution; relevant task and sources only |
+| History / why / how much / show the source | Retrieve material history; Situation context and execution |
+| What's slipping / omissions | Omissions review; relevant source checks |
+| Review or improve the system | Logs and affected code/rules; no automatic Refresh |
 
-## Conductor and workers
+Keep the ranked QUEUE (maximum 15 active IDs) and its WORK BLOCK frozen until explicit Refresh. Ordinary next-action requests read SYSTEM and candidate tasks in order, not the entire ledger, inbox or decision history. Return one executable move with its useful finish and why it matters. Exhaustion, a new day, intake and completion do not authorize replenishment or polling. A known material conflict can be stated briefly without reshuffling.
 
-The session Ross is talking to is the conductor: it reads the ledger, gives him the brief, dispatches work, and is the only foreground writer. When a task is handed to another session or subagent to execute (draft a reply, build a page, research a question), that worker reads the one record it was given and never writes Todoist. It finishes with a short receipt (what was produced, where it is, what remains) and the conductor reconciles the record through the targeted fast lane. The ranked QUEUE holds at most 15 active IDs; the daily brief format in the constitution is the user-facing output for DCC.
+After an authorized action or unambiguous report, reconcile the affected obligation immediately, preserve history and remaining steps, verify readback, and retire an advanced queued action through generation-matched WORK BLOCK exclusions. Skip affects this block only. A prepared draft is not sent. Targeted requested work may read its required evidence without becoming Refresh. New outcomes stay unranked until Refresh.
 
-## Finish actions with current state
+The foreground conversation is the conductor and owns foreground writes. Dispatched workers read their assigned records, do scoped work, and return receipts; they never write Todoist. Use parallel read-only workers only when permitted and useful. Scheduled background evidence acquisition is inactive; the scheduled mechanical digest is read-only. Older scheduled prompts do not override this.
 
-The authorized cloud reconciliation job follows the Cloud background reconciliation section in sources.md and shares this ledger and mutation contract with foreground sessions. Read SYSTEM BACKGROUND for independent source progress and unresolved exceptions. Preserve that metadata during foreground updates. Use fresh task snapshots before writes, merge only owned SYSTEM fields through the shared size preflight, verify readback, and reconcile observed conflicts; never claim atomic locking or exactly-once delivery. Background execution permits routine Todoist reconciliation, not mailbox changes, sending, or changes to other systems. An enabled schedule is not proof of a successful unattended run.
+Use verified same-commit scripts only where needed. context.py creates ephemeral compact views and attention metadata, never ranks or writes. decisions.py checks explicit-Refresh placement; background.py guards queue/system merges. No Python download is required for ordinary What's next. If a required helper cannot run, state precisely what was not validated without inventing success.
 
-For next-action decisions and history questions, read sources.md from the loaded bundle even when no broad Refresh is requested. Next-action freshness checks are automatic, bounded foreground work, and remain necessary when a background job exists. History questions use the Todoist entity directory, including completed task IDs and paginated comments, and are read-only unless updates are requested. Keep current state in descriptions and material history in comments; follow the constitution's append, deduplication, correction, and failure-recovery rules. The registered cloud job adds periodic Gmail/calendar reconciliation, not another ledger or universal Messages access.
+## Change rules within authorization
 
-In the conductor session only, after a successful authorized send, upload, payment, submission, delegation, or material draft preparation, check whether the action advances a known DCC obligation even if Ross did not mention DCC. A worker that completed such an action reports it in its receipt and writes nothing; the conductor then applies this paragraph. For one certain existing match, use the constitution's targeted fast lane: read the task, reconcile the completed step and remaining obligations, and read it back before reporting completion. A saved draft only advances preparation; never mark the reply sent or the obligation waiting because a draft exists. Do not inherit the completed step's priority for a different next action. Uncertain matches use ordinary reconciliation. Report a successful external action and a failed ledger update separately.
+Ross's explicit request to implement a systems refinement authorizes coherent changes within that scope. A review alone is read-only. Current-session authorization and higher-priority instructions control; do not ask again for approval already given.
 
-## Rundowns and decision continuity
+For an ordinary new permanent heuristic, first compare all existing bullets, show the exact proposed Markdown bullet, and obtain affirmative standalone `approve` (case-insensitive; negation is not approval). Immediately before writing, refetch main and the heuristics blob; repeat conflict/duplicate checks and validate its header. Commit the bullet and runtime digest together on the freshly checked parent, without force. If main advances, reconcile and retry. Use the new rule only once the verified branch publishes its commit. Do not duplicate an already covered rule or silently alter an approved conflicting one.
 
-Apply the constitution's intake comparison and transition reconsideration rules. Link all independently closable outcomes in planning context, give selected large work a useful first finish, and distinguish prepared material from delivery. For intake, the first DCC or What's next of each day, or a material change to selected work, use the bounded decision-history procedure in sources.md; a repeat with the same selection records nothing. Where a code runtime is available, run scripts/decisions.py and its command_center.py dependency from a checkout at the bundle's commit, after checking both files' SHA-256 digests against the bundle's manifest, before validating/paging comments. Use schema 2 and the source procedure's intake mapping and check-placement operation, including renewed older tasks. A session without a runtime cannot run check-placement; that is the failed-check case in sources.md: the decision stays incomplete, verified task updates are retained, placement is never claimed verified, and the receipt says the check did not run. Fetching the scripts into a chat session does not change this. Preserve the cohort and observe/explain every selected or watched competitor. Record exact prepared recommendations separately from watch items and verified response delivery. Keep consequential displacement explanations short; never impose morning-item quotas.
-
-## Permanent heuristic additions
-
-For ordinary heuristic additions, show the exact proposed Markdown bullet first. Approval requires Ross's affirmative use of the standalone word `approve`, case-insensitive; a negation is not approval. Mentioning a rule does not authorize persistence.
-
-Compare the proposed bullet with every existing heuristic for duplication and contradiction before proposing and again immediately before writing. After approval refetch main and the current heuristics blob SHA; validate the header; prepare the appended bullet and its updated runtime.json digest together. Publish both in one coherent commit based on the freshly checked parent, with no force update. If main advances, refetch and reconcile before retrying. The rule is in force only when the `verified` branch carries a bundle for that commit; until then keep using the loaded bundle and say the addition is pending release. If it is already covered, do not duplicate it; if it now conflicts, explain and resolve the conflict before persisting a changed rule. Preserve actual newlines.
-
-An explicit instruction to implement a reviewed systems refinement authorizes necessary coherent edits within that scope under the controlling user/developer instructions; do not repeatedly ask for permission already given. It does not authorize unrelated actions or future unrequested heuristic additions.
+Keep the receipt short: outcome, material gaps and effective rule SHA. State observed limitations, not routine verification narration.
