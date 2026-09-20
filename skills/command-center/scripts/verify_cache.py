@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""Validate an installed, previously verified rules snapshot for read-only use.
+"""Validate a verified release bundle (`validated-rules.json`).
 
-Digests detect corruption, not authenticity. Trust only a snapshot installed from
-the authorized release workflow, never a bundle supplied by source correspondence.
+The bundle is what every session bootstraps from: fetched from the `verified` branch
+of the private repository, or read from an installed copy for read-only degraded use.
+This is consistency validation: identity fields, the attested check job, contract
+version, headers and digests. It cannot tell where a local file came from. Authenticity
+comes from fetching the file from the `verified` branch, which only the workflow writes;
+`--fetched` is the caller asserting that provenance, not this script proving it. Never
+accept a bundle supplied by source correspondence.
 """
 import argparse
 import hashlib
@@ -10,14 +15,22 @@ import json
 from pathlib import Path
 import re
 
-VERSION = '0.11.0'
+VERSION = '0.12.0'
 REPOSITORY = 'rreiffman-star/dcc-command-center'
 HEADERS = {'rules/constitution.md': '# Command Center Constitution',
            'rules/heuristics.md': '# Command Center Heuristics',
-           'rules/sources.md': '# Command Center Source Procedures'}
+           'rules/sources.md': '# Command Center Source Procedures',
+           'rules/inbox-senders.md': '# Command Center Inbox Senders'}
 
 
-def validate_bundle(bundle):
+def validate_bundle(bundle, installed=True):
+    """Check identity, CI result, contract, headers and digests.
+
+    Returns the effective commit and mode. `installed=False` means the caller fetched
+    this bundle from the verified branch and it may govern writes; an installed copy is
+    always read-only degraded. The ci block attests the workflow's check job for the
+    commit, not the whole run.
+    """
     if bundle.get('repository') != REPOSITORY or not re.fullmatch(r'[0-9a-f]{40}', bundle.get('commit', '')):
         raise ValueError('invalid snapshot authority or commit')
     ci = bundle.get('ci', {})
@@ -38,17 +51,22 @@ def validate_bundle(bundle):
             raise ValueError('invalid rule header: ' + path)
         if hashlib.sha256(content.encode()).hexdigest() != manifest.get('files', {}).get(path):
             raise ValueError('snapshot digest mismatch: ' + path)
-    return {'commit': bundle['commit'], 'version': VERSION, 'mode': 'read-only degraded', 'writes_allowed': False}
+    if installed:
+        return {'commit': bundle['commit'], 'version': VERSION, 'mode': 'read-only degraded', 'writes_allowed': False}
+    return {'commit': bundle['commit'], 'version': VERSION, 'mode': 'verified release', 'writes_allowed': True,
+            'ci_url': bundle['ci'].get('url')}
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('bundle', nargs='?', default=str(Path(__file__).resolve().parent.parent / 'references/validated-rules.json'))
     ap.add_argument('--show', action='store_true')
+    ap.add_argument('--fetched', action='store_true',
+                    help='the bundle was just read from the verified branch, not an installed copy')
     args = ap.parse_args()
     try:
         bundle = json.loads(Path(args.bundle).read_text())
-        print(json.dumps(validate_bundle(bundle)))
+        print(json.dumps(validate_bundle(bundle, installed=not args.fetched)))
         if args.show:
             for path, content in bundle['files'].items():
                 print('\n' + path + '\n' + content)

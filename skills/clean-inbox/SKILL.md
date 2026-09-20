@@ -5,7 +5,7 @@ description: Review Ross's inbox under the canonical Todoist-backed Command Cent
 
 # Clean Inbox
 
-Integration contract: 0.11.0.
+Integration contract: 0.12.0.
 
 Foreground inbox reconciliation can overlap with the registered cloud job. Compare fresh task snapshots before every write and preserve SYSTEM BACKGROUND and other fields this run does not own. Reconcile observed conflicts from current evidence, and inspect ambiguous writes before retrying; there is no atomic writer lock. This skill retains its own mailbox authorization boundaries; the background job has no mailbox-disposition authority.
 
@@ -13,7 +13,7 @@ Before replacing material context or completing an obligation, preserve its date
 
 Use the current Command Center bootstrap and same-commit source procedures for authority, evidence, markers, and reconciliation. Prefer Gmail for source content and exact labels when available; use Superhuman for snoozed visibility and supported mailbox execution.
 
-Named senders live outside this skill. At the same verified release commit, fetch `rules/inbox-senders.md`, require the first nonblank line `# Command Center Inbox Senders`, and check its SHA-256 digest against runtime.json before applying its Archive and Keep lists. If it cannot be fetched or validated, apply only the generic categories below, treat every named-sender case as `uncertain`, and state that limitation in the report. Never reconstruct the sender list from memory or from an earlier conversation, and never copy it into an installed skill, plugin package, or public mirror.
+Named senders live outside this skill. Read `rules/inbox-senders.md` from the loaded verified bundle (`files` in `validated-rules.json`), require the first nonblank line `# Command Center Inbox Senders`, and apply its Archive and Keep lists. If the bundle is unavailable or the file fails that check, apply only the generic categories below, treat every named-sender case as `uncertain`, and state that limitation in the report. Never reconstruct the sender list from memory or from an earlier conversation, and never copy it into a plugin package or public mirror. The one permitted copy outside the repository is the private fallback bundle installed on Ross's own device at the Command Center skill's `references/validated-rules.json`, which packaging and the mirror exclude.
 
 ## Scope and authority
 
@@ -27,7 +27,7 @@ An explicit request to clean the inbox or archive obvious clutter authorizes arc
 
 ## Workflow
 
-1. Read the canonical `command-center` skill and constitution completely, fetch and validate `rules/inbox-senders.md` at the same commit, then read the full current Todoist Command Center ledger and reconcile the relevant mail delta.
+1. Read the canonical `command-center` skill and constitution completely, read `rules/inbox-senders.md` from the same bundle, then read the full current Todoist Command Center ledger and reconcile the relevant mail delta.
 2. Inspect the available mail tools and use their current schemas as the source of truth.
 3. Enumerate all pages in the requested inbox scope and applicable snoozed scope. If a practical limit interrupts retrieval, report the exact partial scope; do not advance full coverage.
 4. Use metadata to shortlist, then read full changed relevant threads and material attachments before interpreting obligations or disposition. A snippet alone cannot establish resolution.
